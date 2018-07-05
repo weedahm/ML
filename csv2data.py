@@ -1,8 +1,11 @@
 import csv
 import numpy as np
 
-def get_data():
-    f = open('patients_survey_data_minimum.csv', 'r')
+def get_data(file_name):
+    '''
+    Get data from csv file
+    '''
+    f = open(file_name, 'r')
     rdr = csv.reader(f)
     data = []
     for line in rdr:
