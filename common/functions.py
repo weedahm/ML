@@ -2,6 +2,10 @@ import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.datasets.samples_generator import make_blobs
+from sklearn.manifold import MDS
+from sklearn.manifold import LocallyLinearEmbedding
+from sklearn.manifold import Isomap
+from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -19,12 +23,22 @@ class unsupervised_funcs:
         print("transformed data shape:  ", projected.shape)
         self.projected_data = projected
 
-    def show_components_info(self):
-        pca = PCA().fit(self.data)
-        plt.plot(np.cumsum(pca.explained_variance_ratio_))
-        plt.xlabel('number of components')
-        plt.ylabel('cumulative explained variance')
-        plt.show()
+    def let_maniford(self, method=0, components=2):
+        if method == 0: # MDS
+            model = MDS(n_components=components, random_state=2)
+
+        elif method == 1: # LLE
+            model = LocallyLinearEmbedding(n_neighbors=5, n_components=components)
+
+        elif method == 2: # Isomap
+            model = Isomap(n_components=components) 
+        
+        else: # TSNE
+            model = TSNE(n_components=components)
+
+        out = model.fit_transform(self.data)
+        print(out.shape)
+        self.projected_data = out
 
     def let_kMC(self, clusters=10):
         kmeans = KMeans(n_clusters=clusters)
@@ -32,6 +46,13 @@ class unsupervised_funcs:
         y_kmeans = kmeans.predict(self.projected_data)
         self.kmc_centers = kmeans.cluster_centers_
         self.y_kMC_data = y_kmeans
+
+    def show_components_info(self):
+        pca = PCA().fit(self.data)
+        plt.plot(np.cumsum(pca.explained_variance_ratio_))
+        plt.xlabel('number of components')
+        plt.ylabel('cumulative explained variance')
+        plt.show()
 
     def print_plot(self):
         fig = plt.figure(1)

@@ -2,9 +2,12 @@ import csv
 import numpy as np
 
 def get_data(file_name):
-    '''
-    Get data from csv file
-    '''
+    """Get data from csv file
+
+    input: .csv file path
+    
+    output: list (np.float type)
+    """
     f = open(file_name, 'r')
     rdr = csv.reader(f)
     data = []

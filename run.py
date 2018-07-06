@@ -5,6 +5,7 @@ patients_data = csv2data.get_data('patients_survey_data_minimum.csv') # get arra
 
 unspv_learn = unsupervised_funcs(patients_data)
 
-unspv_learn.let_PCA(components=3) # run Principal Component Analysis
-unspv_learn.let_kMC(clusters=5) # run k-Mean Clustering
+#unspv_learn.let_PCA(components=3) # run Principal Component Analysis
+unspv_learn.let_maniford(method=3, components=3) # run Manifold Learning
+unspv_learn.let_kMC(clusters=2) # run k-Mean Clustering
 unspv_learn.print_plot() # draw plot
