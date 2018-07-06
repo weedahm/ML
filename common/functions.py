@@ -1,20 +1,22 @@
 import numpy as np
 from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
-from sklearn.datasets.samples_generator import make_blobs
+from sklearn.decomposition import RandomizedPCA
 from sklearn.manifold import MDS
 from sklearn.manifold import LocallyLinearEmbedding
 from sklearn.manifold import Isomap
 from sklearn.manifold import TSNE
+from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-class unsupervised_funcs:
+class unsupervisedFuncs:
     def __init__(self, data_in):
         self.data = data_in
         self.projected_data = []
-        self.y_kMC_data = []
-        self.kmc_centers = []
+        self.y_data = []
+        self.y_prob = []
+        #self.kmc_centers = []
 
     def let_PCA(self, components=2):
         pca = PCA(n_components=components)
@@ -44,8 +46,15 @@ class unsupervised_funcs:
         kmeans = KMeans(n_clusters=clusters)
         kmeans.fit(self.projected_data)
         y_kmeans = kmeans.predict(self.projected_data)
-        self.kmc_centers = kmeans.cluster_centers_
-        self.y_kMC_data = y_kmeans
+        #self.kmc_centers = kmeans.cluster_centers_
+        self.y_data = y_kmeans
+
+    def let_GMM(self, clusters=10):
+        gmm = GaussianMixture(n_components=clusters).fit(self.projected_data)
+        y_gmm = gmm.predict(self.projected_data)
+        y_prob = gmm.predict_proba(self.projected_data)
+        self.y_prob = y_prob
+        self.y_data = y_gmm
 
     def show_components_info(self):
         pca = PCA().fit(self.data)
@@ -63,8 +72,8 @@ class unsupervised_funcs:
             plt.xlabel('component 1')
             plt.ylabel('component 2')
             plt.subplot(122)
-            plt.scatter(self.projected_data[:,0], self.projected_data[:,1], c=self.y_kMC_data, s=30, cmap='viridis', alpha=0.8) 
-            plt.scatter(self.kmc_centers[:,0], self.kmc_centers[:,1], c='black', s=200, alpha=0.5)
+            plt.scatter(self.projected_data[:,0], self.projected_data[:,1], c=self.y_data, s=30, cmap='viridis', alpha=0.8) 
+            #plt.scatter(self.kmc_centers[:,0], self.kmc_centers[:,1], c='black', s=200, alpha=0.5)
             plt.xlabel('component 1')
             plt.ylabel('component 2')
         
@@ -75,11 +84,14 @@ class unsupervised_funcs:
             ax.set_ylabel('component 2')
             ax.set_zlabel('component 3')
             ax = fig.add_subplot(122, projection='3d')
-            ax.scatter(self.projected_data[:,0], self.projected_data[:,1], self.projected_data[:,2], c=self.y_kMC_data, s=30, cmap='viridis', alpha=0.8)
-            ax.scatter(self.kmc_centers[:,0], self.kmc_centers[:,1], self.kmc_centers[:,2], c='black', s=200, alpha=0.5) 
+            ax.scatter(self.projected_data[:,0], self.projected_data[:,1], self.projected_data[:,2], c=self.y_data, s=30, cmap='viridis', alpha=0.8)
+            #ax.scatter(self.kmc_centers[:,0], self.kmc_centers[:,1], self.kmc_centers[:,2], c='black', s=200, alpha=0.5) 
             ax.set_xlabel('component 1')
             ax.set_ylabel('component 2')
             ax.set_zlabel('component 3')
+
+        else:
+            return
 
         mng = plt.get_current_fig_manager()
         mng.window.state('zoomed')
