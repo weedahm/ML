@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
 import csv
 
 #from tensorflow.examples.tutorials.mnist import input_data
@@ -24,18 +25,20 @@ class ThreeLayerNet:
     '''
 
     def Net(self):            
-        X = tf.placeholder(tf.float32, [None, 33])
+        X = tf.placeholder(tf.float32, [None, 40])
         Y = tf.placeholder(tf.float32, [None, 6])
 
-        W1 = tf.Variable(tf.random_normal([33, 20], stddev=0.01))
+        W1 = tf.Variable(tf.random_normal([40, 20], stddev=0.01))
         L1 = tf.nn.relu(tf.matmul(X, W1))
 
-        W2 = tf.Variable(tf.random_normal([20, 10], stddev=0.01))
-        L2 = tf.nn.relu(tf.matmul(L1, W2))
+        W2 = tf.Variable(tf.random_normal([20, 6], stddev=0.01))
 
-        W3 = tf.Variable(tf.random_normal([10, 6], stddev=0.01))
+        model = tf.matmul(L1, W2)
+        #L2 = tf.nn.relu(tf.matmul(L1, W2))
 
-        model = tf.matmul(L2, W3)
+        #W3 = tf.Variable(tf.random_normal([12, 6], stddev=0.01))
+
+        #model = tf.matmul(L2, W3)
 
         cost = tf.reduce_mean(tf.square(model - Y)) # Mean Square Error
         #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=model, labels=Y))
@@ -49,9 +52,13 @@ class ThreeLayerNet:
         sess.run(init)
 
         batch_size = 50
+        total_epoch = 300
         total_batch = int(self.trainX.shape[0] / batch_size)
 
-        for epoch in range(700):
+        train_loss = []
+        test_loss = []
+
+        for epoch in range(total_epoch):
             total_cost = 0
 
             for i in range(total_batch):
@@ -65,26 +72,47 @@ class ThreeLayerNet:
             print('Epoch:', '%04d' % (epoch + 1),
                 'Avg. cost =', '{:.3f}'.format(total_cost / total_batch))
 
+            temp_test_loss = sess.run(cost, feed_dict={X: self.testX, Y: self.testY})
+            #print('test set MSE유사도: ', temp_test_loss)
+            train_loss.append(total_cost / total_batch)
+            test_loss.append(temp_test_loss)
+
         print('최적화 완료!')
+
+        #########
+        # Save Model
+        #########
+        saver = tf.train.Saver()
+        save_path = saver.save(sess, "./patients_2layerNN2/2layerNN.ckpt")
+
+        import os
+        print(os.getcwd())
+        print("Model saved in file: ", save_path)
 
         #########
         # Testing
         #########
         print('MSE유사도: ', sess.run(cost, feed_dict={X: self.testX, Y: self.testY}))
         predict_model = sess.run(model, feed_dict={X: self.testX})
-        predict_model = predict_model.round(3)
+        predict_model = predict_model.round(1)
 
-        f = open('output.csv', 'w', newline='')
+        #########
+        # Writing
+        #########
+        f = open('output3.csv', 'w', newline='')
         wr = csv.writer(f)
         for i in predict_model:
             wr.writerow(i)
         f.close()
-        
-        #predict_model.round(3)
-        '''
-        is_correct = tf.equal(tf.argmax(model, 1), tf.argmax(Y, 1))
-        accuracy = tf.reduce_mean(tf.cast(is_correct, tf.float32))
-        print('정확도:', sess.run(accuracy,
-                                feed_dict={X: self.testX,
-                                        Y: self.testY}))
-        '''
+
+        #########
+        # Draw plot
+        #########
+        x = np.arange(0, total_epoch, 1)
+        plt.xlabel('epoch')
+        plt.ylabel('loss')
+        plt.plot(x ,train_loss, label="train_loss")
+        plt.plot(x ,test_loss, label="test_loss")
+        plt.ylim(0, 8)
+        plt.legend()
+        plt.show()
