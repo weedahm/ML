@@ -24,21 +24,25 @@ class ThreeLayerNet:
         tf.data.Dataset.from_tensor_slices(self.X)
     '''
 
-    def Net(self):            
-        X = tf.placeholder(tf.float32, [None, 40])
-        Y = tf.placeholder(tf.float32, [None, 6])
+    def Net(self):
+        input_size = int(self.trainX.shape[1])
+        output_size = int(self.trainY.shape[1])
+        hidden_size = int(input_size / 2)
+        hidden2_size = int(hidden_size / 2)
 
-        W1 = tf.Variable(tf.random_normal([40, 20], stddev=0.01))
-        L1 = tf.nn.relu(tf.matmul(X, W1))
+        X = tf.placeholder(tf.float32, [None, input_size])
+        Y = tf.placeholder(tf.float32, [None, output_size])
 
-        W2 = tf.Variable(tf.random_normal([20, 6], stddev=0.01))
+        W1 = tf.Variable(tf.random_normal([input_size, hidden_size], stddev=0.01))
+        L1 = tf.nn.sigmoid(tf.layers.batch_normalization(tf.matmul(X, W1)))
 
-        model = tf.matmul(L1, W2)
-        #L2 = tf.nn.relu(tf.matmul(L1, W2))
+        W2 = tf.Variable(tf.random_normal([hidden_size, hidden2_size], stddev=0.01))
+        #model = tf.matmul(L1, W2)
+        L2 = tf.nn.sigmoid(tf.layers.batch_normalization(tf.matmul(L1, W2)))
 
-        #W3 = tf.Variable(tf.random_normal([12, 6], stddev=0.01))
+        W3 = tf.Variable(tf.random_normal([hidden2_size, output_size], stddev=0.01))
 
-        #model = tf.matmul(L2, W3)
+        model = tf.matmul(L2, W3)
 
         cost = tf.reduce_mean(tf.square(model - Y)) # Mean Square Error
         #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=model, labels=Y))
@@ -51,8 +55,8 @@ class ThreeLayerNet:
         sess = tf.Session()
         sess.run(init)
 
-        batch_size = 50
-        total_epoch = 300
+        batch_size = 10
+        total_epoch = 250
         total_batch = int(self.trainX.shape[0] / batch_size)
 
         train_loss = []
@@ -69,16 +73,17 @@ class ThreeLayerNet:
                 _, cost_val = sess.run([optimizer, cost], feed_dict={X: batch_xs, Y: batch_ys})
                 total_cost += cost_val
 
-            print('Epoch:', '%04d' % (epoch + 1),
-                'Avg. cost =', '{:.3f}'.format(total_cost / total_batch))
-
             temp_test_loss = sess.run(cost, feed_dict={X: self.testX, Y: self.testY})
             #print('test set MSE유사도: ', temp_test_loss)
             train_loss.append(total_cost / total_batch)
             test_loss.append(temp_test_loss)
+            
+            print('Epoch:', '%04d' % (epoch + 1), 'Avg. cost =', total_cost / total_batch, ', test cost = ', temp_test_loss)
+            #    'Avg. cost =', '{:.3f}'.format(total_cost / total_batch), ', test cost = ', '{:.3f}'.format(temp_test_loss))
 
         print('최적화 완료!')
 
+        '''
         #########
         # Save Model
         #########
@@ -88,18 +93,19 @@ class ThreeLayerNet:
         import os
         print(os.getcwd())
         print("Model saved in file: ", save_path)
+        '''
 
         #########
         # Testing
         #########
         print('MSE유사도: ', sess.run(cost, feed_dict={X: self.testX, Y: self.testY}))
         predict_model = sess.run(model, feed_dict={X: self.testX})
-        predict_model = predict_model.round(1)
+        #predict_model = predict_model.round(1)
 
         #########
         # Writing
         #########
-        f = open('output3.csv', 'w', newline='')
+        f = open('output.csv', 'w', newline='')
         wr = csv.writer(f)
         for i in predict_model:
             wr.writerow(i)
@@ -113,6 +119,6 @@ class ThreeLayerNet:
         plt.ylabel('loss')
         plt.plot(x ,train_loss, label="train_loss")
         plt.plot(x ,test_loss, label="test_loss")
-        plt.ylim(0, 8)
+        plt.ylim(0, 200)
         plt.legend()
         plt.show()

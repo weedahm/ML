@@ -2,19 +2,22 @@ import numpy as np
 
 class DataPreprocessing:
     def __init__(self):
-        self.mean = .0
-        self.std = .0
+        self.mean = []
+        self.std = []
+        self.min = []
 
-    def setMean(self, data):
+    def setMeanStd(self, data):
         self.mean = np.mean(data, axis=0)
+        self.std = np.std(data-self.mean, axis=0)
 
-    def setStd(self, data):
-        self.std = np.std(data, axis=0)
+    def setMinDistance(self, data):
+        self.min = np.min(data, axis=0)
+        self.distance = np.max(data - self.min, axis=0)
 
-    def meanSubtraction(self, data):
-        data_out = data - self.mean
+    def standardization(self, data):
+        data_out = (data - self.mean) / self.std
         return data_out
 
-    def normalization(self, data):
-        data_out = data / self.std
+    def minMaxScaler(self, data):
+        data_out = (data - self.min) / self.distance
         return data_out
