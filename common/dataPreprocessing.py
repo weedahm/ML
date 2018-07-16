@@ -5,6 +5,7 @@ class DataPreprocessing:
         self.mean = []
         self.std = []
         self.min = []
+        self.distance = []
 
     def setMeanStd(self, data):
         self.mean = np.mean(data, axis=0)
@@ -19,5 +20,5 @@ class DataPreprocessing:
         return data_out
 
     def minMaxScaler(self, data):
-        data_out = (data - self.min) / self.distance
+        data_out = (data - self.min) / self.distance + 0.5
         return data_out

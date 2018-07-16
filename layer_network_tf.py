@@ -28,25 +28,27 @@ class ThreeLayerNet:
         input_size = int(self.trainX.shape[1])
         output_size = int(self.trainY.shape[1])
         hidden_size = int(input_size / 2)
-        hidden2_size = int(hidden_size / 2)
+        #hidden_size = 256
+        #hidden2_size = int(hidden_size / 2)
 
         X = tf.placeholder(tf.float32, [None, input_size])
         Y = tf.placeholder(tf.float32, [None, output_size])
 
         W1 = tf.Variable(tf.random_normal([input_size, hidden_size], stddev=0.01))
-        L1 = tf.nn.sigmoid(tf.layers.batch_normalization(tf.matmul(X, W1)))
+        L1 = tf.nn.relu(tf.layers.batch_normalization(tf.matmul(X, W1)))
 
-        W2 = tf.Variable(tf.random_normal([hidden_size, hidden2_size], stddev=0.01))
-        #model = tf.matmul(L1, W2)
-        L2 = tf.nn.sigmoid(tf.layers.batch_normalization(tf.matmul(L1, W2)))
+        W2 = tf.Variable(tf.random_normal([hidden_size, output_size], stddev=0.01))
+        model = tf.matmul(L1, W2)
+        #L2 = tf.nn.relu(tf.layers.batch_normalization(tf.matmul(L1, W2)))
 
-        W3 = tf.Variable(tf.random_normal([hidden2_size, output_size], stddev=0.01))
+        #W3 = tf.Variable(tf.random_normal([hidden2_size, output_size], stddev=0.01))
 
-        model = tf.matmul(L2, W3)
+        #model = tf.matmul(L2, W3)
 
         cost = tf.reduce_mean(tf.square(model - Y)) # Mean Square Error
         #cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=model, labels=Y))
-        optimizer = tf.train.AdamOptimizer(0.001).minimize(cost)
+        #optimizer = tf.train.AdamOptimizer(0.001).minimize(cost)
+        optimizer = tf.train.RMSPropOptimizer(0.001).minimize(cost)
 
         #########
         # Training
@@ -55,8 +57,8 @@ class ThreeLayerNet:
         sess = tf.Session()
         sess.run(init)
 
-        batch_size = 10
-        total_epoch = 250
+        batch_size = 50
+        total_epoch = 500
         total_batch = int(self.trainX.shape[0] / batch_size)
 
         train_loss = []
@@ -83,24 +85,22 @@ class ThreeLayerNet:
 
         print('최적화 완료!')
 
-        '''
         #########
         # Save Model
         #########
         saver = tf.train.Saver()
-        save_path = saver.save(sess, "./patients_2layerNN2/2layerNN.ckpt")
+        save_path = saver.save(sess, "./patients_2layerNN/2layerNN.ckpt")
 
         import os
         print(os.getcwd())
         print("Model saved in file: ", save_path)
-        '''
 
         #########
         # Testing
         #########
         print('MSE유사도: ', sess.run(cost, feed_dict={X: self.testX, Y: self.testY}))
         predict_model = sess.run(model, feed_dict={X: self.testX})
-        #predict_model = predict_model.round(1)
+        predict_model = predict_model.round(3)
 
         #########
         # Writing

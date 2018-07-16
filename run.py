@@ -1,5 +1,6 @@
 import csv2data
 import numpy as np
+import csv
 #from common.functions import unsupervisedFuncs
 from common.dataPreprocessing import DataPreprocessing
 from layer_network_tf import ThreeLayerNet
@@ -27,67 +28,69 @@ def unsupervised_learning():
 '''
 
 def supervised_learning_training(datapps = 0):
+    trainX = csv2data.get_data('data/csv/patients_trainingX5.csv')
+    trainY = csv2data.get_data('data/csv/patients_trainingY5.csv')
+    testX = csv2data.get_data('data/csv/patients_testX5.csv')
+    testY = csv2data.get_data('data/csv/patients_testY5.csv')
+    print(trainX.shape, trainY.shape, testX.shape, testY.shape)
+
+    dpp = DataPreprocessing()
+
+    f = open('patients_2layerNN/dataPreprocessing.csv', 'w', newline='')
+    wr = csv.writer(f)
+
     ##### deeplearning - training(data preprocessing - standardization)
     if datapps == 1:
-        dpp = DataPreprocessing()
-
-        trainX = csv2data.get_data('data/csv/patients_trainingX.csv')
-        trainY = csv2data.get_data('data/csv/patients_trainingY.csv')
-        testX = csv2data.get_data('data/csv/patients_testX.csv')
-        testY = csv2data.get_data('data/csv/patients_testY.csv')
-
         dpp.setMeanStd(trainX)
-
-        trainX_std = dpp.standardization(trainX)
-        testX_std = dpp.standardization(testX)
-
-        print(trainX_std)
-
-        spv_learn = ThreeLayerNet(trainX_std, trainY, testX_std, testY)
-        spv_learn.Net()
-
+        trainX = dpp.standardization(trainX)
+        testX = dpp.standardization(testX)
+        wr.writerow('1')
+        wr.writerow(dpp.mean)
+        wr.writerow(dpp.std)
     ##### deeplearning - training(data preprocessing - minmax scaler)
     elif datapps == 2:
-        dpp = DataPreprocessing()
-        dppY = DataPreprocessing()
-
-        trainX = csv2data.get_data('data/csv/patients_trainingX4_wh.csv')
-        trainY = csv2data.get_data('data/csv/patients_trainingY4.csv')
-        testX = csv2data.get_data('data/csv/patients_testX4_wh.csv')
-        testY = csv2data.get_data('data/csv/patients_testY4.csv')
-
-        print(trainX.shape, trainY.shape, testX.shape, testY.shape)
-
         dpp.setMinDistance(trainX)
-        dppY.setMinDistance(trainY)
-
-        trainX_mms = dpp.minMaxScaler(trainX)
-        testX_mms = dpp.minMaxScaler(testX)
-
-        #print(trainX_mms)
-
-        spv_learn = ThreeLayerNet(trainX_mms, trainY, testX_mms, testY)
-        spv_learn.Net()
-
+        trainX = dpp.minMaxScaler(trainX)
+        testX = dpp.minMaxScaler(testX)
+        wr.writerow('2')
+        wr.writerow(dpp.min)
+        wr.writerow(dpp.distance) 
+    ##### deeplearning - training(no data preprocessing)
     else:
-        ##### deeplearning - training(no data preprocessing)
-        trainX = csv2data.get_data('data/csv/patients_trainingX4.csv')
-        trainY = csv2data.get_data('data/csv/patients_trainingY4_one.csv')
-        testX = csv2data.get_data('data/csv/patients_testX4.csv')
-        testY = csv2data.get_data('data/csv/patients_testY4_one.csv')
+        wr.writerow('0')
+    f.close()
 
-        print(trainX.shape, trainY.shape, testX.shape, testY.shape)
-
-        spv_learn = ThreeLayerNet(trainX, trainY, testX, testY)
-        spv_learn.Net()
+    spv_learn = ThreeLayerNet(trainX, trainY, testX, testY)
+    spv_learn.Net()
 
 def supervised_learning_inference():
     ##### deeplearning - inference
-    testX = csv2data.get_data('patients_testX.csv')
-    lninf.inferenceNet(testX)
+    testX = csv2data.get_data('data/csv/patients_testX5.csv')
+   
+    f = open('patients_2layerNN/dataPreprocessing.csv', 'r')
+    rdr = csv.reader(f)
+    data = []
+    for line in rdr:
+        data.append(line)
+    f.close()
+    datapps = (np.array(data[0])).astype(np.float)
+    dpp = DataPreprocessing()
+    
+    if datapps == 1:
+        dpp.mean = (np.array(data[1])).astype(np.float)
+        dpp.std = (np.array(data[2])).astype(np.float)
+        testX_pps = dpp.standardization(testX)
+    
+    elif datapps == 2:
+        dpp.min = (np.array(data[1])).astype(np.float)
+        dpp.distance = (np.array(data[2])).astype(np.float)
+        testX_pps = dpp.minMaxScaler(testX)
+
+    else:
+        testX_pps = testX
+
+    lninf.inferenceNet(testX_pps)
 
 #unsupervised_learning()
-
-supervised_learning_training(datapps=2)
-
-#supervised_learning_inference()
+#supervised_learning_training(datapps=2)
+supervised_learning_inference()
