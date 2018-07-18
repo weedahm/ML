@@ -37,7 +37,10 @@ def inferenceNet(testX):
     #########
     # Writing
     #########
-    f = open('inference_output.csv', 'w', newline='')
+    filename = 'output/inference_output.csv'
+    import os
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    f = open(filename, 'w', newline='')
     wr = csv.writer(f)
     for i in predict_model:
         wr.writerow(i)
