@@ -5,6 +5,7 @@ import csv
 from common.dataPreprocessing import DataPreprocessing
 from layer_network_tf import ThreeLayerNet
 import layer_network_tf_inference as lninf
+import json2data
 
 '''
 def unsupervised_learning():
@@ -38,7 +39,12 @@ def supervised_learning_training(trainX_path, trainY_path, testX_path, testY_pat
 
     f = open('patients_2layerNN/dataPreprocessing.csv', 'w', newline='')
     wr = csv.writer(f)
-
+    input_size = trainX.shape[1]
+    output_size = trainY.shape[1]
+    size = []
+    size.append(input_size)
+    size.append(output_size)
+    wr.writerow(size)
     ##### deeplearning - training(data preprocessing - standardization)
     if datapps == 1:
         dpp.setMeanStd(trainX)
@@ -60,12 +66,15 @@ def supervised_learning_training(trainX_path, trainY_path, testX_path, testY_pat
         wr.writerow('0')
     f.close()
 
-    spv_learn = ThreeLayerNet(trainX, trainY, testX, testY)
+    spv_learn = ThreeLayerNet(trainX, trainY, testX, testY, size)
     spv_learn.Net()
 
-def supervised_learning_inference(testX_path):
+def supervised_learning_inference(testX_path, isTraining = True):
     ##### deeplearning - inference
-    testX = csv2data.get_data(testX_path)
+    if isTraining:
+        testX = csv2data.get_data(testX_path)
+    else:
+        testX = json2data.setData(json2data.loadJson(testX_path), num_features=42)
    
     f = open('patients_2layerNN/dataPreprocessing.csv', 'r')
     rdr = csv.reader(f)
@@ -73,20 +82,22 @@ def supervised_learning_inference(testX_path):
     for line in rdr:
         data.append(line)
     f.close()
-    datapps = (np.array(data[0])).astype(np.float)
+    size = (np.array(data[0])).astype(np.int)
+    datapps = (np.array(data[1])).astype(np.float)
     dpp = DataPreprocessing()
     
     if datapps == 1:
-        dpp.mean = (np.array(data[1])).astype(np.float)
-        dpp.std = (np.array(data[2])).astype(np.float)
-        testX_pps = dpp.standardization(testX)
-    
+        dpp.mean = (np.array(data[2])).astype(np.float)
+        dpp.std = (np.array(data[3])).astype(np.float)
+        testX_pps = dpp.standardization(testX) 
     elif datapps == 2:
-        dpp.min = (np.array(data[1])).astype(np.float)
-        dpp.distance = (np.array(data[2])).astype(np.float)
+        dpp.min = (np.array(data[2])).astype(np.float)
+        dpp.distance = (np.array(data[3])).astype(np.float)
         testX_pps = dpp.minMaxScaler(testX)
-
     else:
         testX_pps = testX
 
-    lninf.inferenceNet(testX_pps)
+    predict_data = lninf.inferenceNet(testX_pps, size)
+    print(predict_data)
+    return predict_data
+    

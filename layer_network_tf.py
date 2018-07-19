@@ -8,11 +8,13 @@ import csv
 #mnist = input_data.read_data_sets("./mnist/data/", one_hot=True)
 
 class ThreeLayerNet:
-    def __init__(self, train_X, train_Y, test_X, test_Y):
+    def __init__(self, train_X, train_Y, test_X, test_Y, size):
         self.trainX = train_X
         self.trainY = train_Y
         self.testX = test_X
         self.testY = test_Y
+        self.input_size = size[0]
+        self.output_size = size[1]
     
     '''
     def dataSetting(self, dataRatio = 0.8):
@@ -25,8 +27,8 @@ class ThreeLayerNet:
     '''
 
     def Net(self):
-        input_size = int(self.trainX.shape[1])
-        output_size = int(self.trainY.shape[1])
+        input_size = self.input_size
+        output_size = self.output_size
         hidden_size = int(input_size / 2)
         #hidden_size = 256
         #hidden2_size = int(hidden_size / 2)
@@ -57,8 +59,8 @@ class ThreeLayerNet:
         sess = tf.Session()
         sess.run(init)
 
-        batch_size = 50
-        total_epoch = 500
+        batch_size = 30
+        total_epoch = 300
         total_batch = int(self.trainX.shape[0] / batch_size)
 
         train_loss = []
@@ -71,12 +73,10 @@ class ThreeLayerNet:
                 batch_mask = np.random.choice(self.trainX.shape[0], batch_size)
                 batch_xs = self.trainX[batch_mask]
                 batch_ys = self.trainY[batch_mask]
-                #batch_xs, batch_ys = mnist.train.next_batch(batch_size)
                 _, cost_val = sess.run([optimizer, cost], feed_dict={X: batch_xs, Y: batch_ys})
                 total_cost += cost_val
 
             temp_test_loss = sess.run(cost, feed_dict={X: self.testX, Y: self.testY})
-            #print('test set MSE유사도: ', temp_test_loss)
             train_loss.append(total_cost / total_batch)
             test_loss.append(temp_test_loss)
             

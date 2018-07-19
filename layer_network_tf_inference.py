@@ -3,10 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-def inferenceNet(testX):
-    input_size = int(testX.shape[1])
+def inferenceNet(testX, size):
+    input_size = size[0]
     hidden_size = int(input_size / 2)
-    output_size = 6
+    output_size = size[1]
 
     X = tf.placeholder(tf.float32, [None, input_size])
     #Y = tf.placeholder(tf.float32, [None, 6])
@@ -45,3 +45,5 @@ def inferenceNet(testX):
     for i in predict_model:
         wr.writerow(i)
     f.close()
+
+    return predict_model
