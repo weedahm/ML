@@ -1,13 +1,12 @@
 import csv2data
 import numpy as np
 import csv
-#from common.functions import unsupervisedFuncs
+from common.functions import unsupervisedFuncs
 from common.dataPreprocessing import DataPreprocessing
 from layer_network_tf import ThreeLayerNet
 import layer_network_tf_inference as lninf
 import json2data
 
-'''
 def unsupervised_learning():
     ##### unsupervised learning
     patients_data = csv2data.get_data('patients_survey_data.csv') # get array data from .csv file 
@@ -26,7 +25,7 @@ def unsupervised_learning():
     #print(unspv_learn.y_prob.shape)
 
     unspv_learn.print_plot() # draw plot
-'''
+
 
 def supervised_learning_training(trainX_path, trainY_path, testX_path, testY_path, datapps = 0):
     trainX = csv2data.get_data(trainX_path)
@@ -71,11 +70,6 @@ def supervised_learning_training(trainX_path, trainY_path, testX_path, testY_pat
 
 def supervised_learning_inference(testX_path, isTraining = True):
     ##### deeplearning - inference
-    if isTraining:
-        testX = csv2data.get_data(testX_path)
-    else:
-        testX = json2data.setData(json2data.loadJson(testX_path), num_features=42)
-   
     f = open('patients_2layerNN/dataPreprocessing.csv', 'r')
     rdr = csv.reader(f)
     data = []
@@ -85,7 +79,12 @@ def supervised_learning_inference(testX_path, isTraining = True):
     size = (np.array(data[0])).astype(np.int)
     datapps = (np.array(data[1])).astype(np.float)
     dpp = DataPreprocessing()
-    
+
+    if isTraining:
+        testX = csv2data.get_data(testX_path)
+    else:
+        testX = json2data.setData(json2data.loadJson(testX_path), num_features=size[0])
+
     if datapps == 1:
         dpp.mean = (np.array(data[2])).astype(np.float)
         dpp.std = (np.array(data[3])).astype(np.float)
@@ -98,6 +97,5 @@ def supervised_learning_inference(testX_path, isTraining = True):
         testX_pps = testX
 
     predict_data = lninf.inferenceNet(testX_pps, size)
-    print(predict_data)
     return predict_data
     

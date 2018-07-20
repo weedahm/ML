@@ -51,7 +51,7 @@ def loadJson(file_path):
         json_data = json.load(data_file)
     return json_data
 
-def setData(json_data, num_features = 42):
+def setData(json_data, num_features):
     data = np.zeros((1, num_features))
 
     for i in val_dic.values():

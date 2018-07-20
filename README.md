@@ -7,3 +7,5 @@ scipy
 matplotlib
 scikit-learn
 tensorflow
+django
+djangorestframework
