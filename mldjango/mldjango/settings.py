@@ -25,7 +25,7 @@ SECRET_KEY = '4tjv9-%)^o57#^1us53y=f&mi^b9xm-4tz#mphf4c4z18n)pfz'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.0.25']
 
 
 # Application definition
@@ -38,14 +38,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'mlapiapp',
+    'mlapiapp.apps.MlapiappConfig',
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+        ),
         # 'rest_framework.permissions.IsAdminUser'
-    ],
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
 }
 
 MIDDLEWARE = [
