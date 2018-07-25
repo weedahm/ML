@@ -20,5 +20,5 @@ class DataPreprocessing:
         return data_out
 
     def minMaxScaler(self, data):
-        data_out = (data - self.min) / self.distance + 0.5
+        data_out = (data - self.min) / self.distance
         return data_out

@@ -7,16 +7,25 @@ from layer_network_tf import ThreeLayerNet
 import layer_network_tf_inference as lninf
 import json2data
 
-def unsupervised_learning():
+def unsupervised_learning(data_path, dimension_reduction=0, clustering=0):
     ##### unsupervised learning
-    patients_data = csv2data.get_data('patients_survey_data.csv') # get array data from .csv file 
+    patients_data = csv2data.get_data(data_path) # get array data from .csv file 
 
-    unspv_learn = unsupervisedFuncs(patients_data)
+    dpp = DataPreprocessing()
+    dpp.setMinDistance(patients_data)
+    data = dpp.minMaxScaler(patients_data)
+    print(data)
+    unspv_learn = unsupervisedFuncs(data)
 
-    #unspv_learn.let_PCA(components=3) # run Principal Component Analysis
-    unspv_learn.let_maniford(method=1, components=30) # run Manifold Learning
-    #unspv_learn.let_kMC(clusters=3) # run k-Mean Clustering
-    unspv_learn.let_GMM(clusters=5) # run Gaussian Mixture Models
+    if(dimension_reduction == 1): # run Principal Component Analysis
+        unspv_learn.let_PCA(components=3) 
+    elif(dimension_reduction == 2): # run Manifold Learning
+        unspv_learn.let_maniford(method=1, components=3)
+
+    if(clustering == 1): # run k-Mean Clustering
+        unspv_learn.let_kMC(clusters=3)
+    elif(clustering == 2): # run Gaussian Mixture Models
+        unspv_learn.let_GMM(clusters=6)
 
     #unspv_learn.show_components_info() # draw plot about information loss of PCA
 

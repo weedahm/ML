@@ -24,3 +24,5 @@ def setScore(predict_data):
     
     score = tmp_score.round(1)
     return score
+
+    # 0 ~ 100 으로 stretch 하기 (0~25: 좋음, 26~50: 보통, 51~75: 나쁨, 76~100: 매우나쁨)
