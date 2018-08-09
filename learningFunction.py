@@ -7,7 +7,7 @@ from layer_network_tf import ThreeLayerNet
 import layer_network_tf_inference as lninf
 import json2data
 
-def unsupervised_learning(data_path, dimension_reduction=0, clustering=0):
+def unsupervised_learning(data_path, dimension_reduction=0, clustering=0, n_component=3, n_cluster=3):
     ##### unsupervised learning
     patients_data = csv2data.get_data(data_path) # get array data from .csv file 
 
@@ -18,14 +18,14 @@ def unsupervised_learning(data_path, dimension_reduction=0, clustering=0):
     unspv_learn = unsupervisedFuncs(data)
 
     if(dimension_reduction == 1): # run Principal Component Analysis
-        unspv_learn.let_PCA(components=3) 
+        unspv_learn.let_PCA(components=n_component) 
     elif(dimension_reduction == 2): # run Manifold Learning
-        unspv_learn.let_maniford(method=1, components=3)
+        unspv_learn.let_maniford(method=3, components=n_component)
 
     if(clustering == 1): # run k-Mean Clustering
-        unspv_learn.let_kMC(clusters=3)
+        unspv_learn.let_kMC(clusters=n_cluster)
     elif(clustering == 2): # run Gaussian Mixture Models
-        unspv_learn.let_GMM(clusters=6)
+        unspv_learn.let_GMM(clusters=n_cluster)
 
     #unspv_learn.show_components_info() # draw plot about information loss of PCA
 
