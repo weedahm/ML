@@ -21,9 +21,7 @@ def inferenceNet(testX, size):
 
     #optimizer = tf.train.AdamOptimizer(0.001).minimize(cost)
 
-    #########
-    # Inference
-    #########
+    ######### Inference
     saver = tf.train.Saver()
     init = tf.global_variables_initializer()
     sess = tf.Session()
@@ -34,9 +32,7 @@ def inferenceNet(testX, size):
     predict_model = sess.run(model, feed_dict={X: testX})
     predict_model = predict_model.round(1)
 
-    #########
-    # Writing
-    #########
+    ######### Writing
     filename = 'output/inference_output.csv'
     import os
     os.makedirs(os.path.dirname(filename), exist_ok=True)

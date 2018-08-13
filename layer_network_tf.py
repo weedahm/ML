@@ -52,9 +52,7 @@ class ThreeLayerNet:
         #optimizer = tf.train.AdamOptimizer(0.001).minimize(cost)
         optimizer = tf.train.RMSPropOptimizer(0.001).minimize(cost)
 
-        #########
-        # Training
-        #########
+        ######### Training
         init = tf.global_variables_initializer()
         sess = tf.Session()
         sess.run(init)
@@ -85,9 +83,7 @@ class ThreeLayerNet:
 
         print('최적화 완료!')
 
-        #########
-        # Save Model
-        #########
+        ######### Save Model
         saver = tf.train.Saver()
         save_path = saver.save(sess, "./patients_2layerNN/2layerNN.ckpt")
 
@@ -95,16 +91,12 @@ class ThreeLayerNet:
         print(os.getcwd())
         print("Model saved in file: ", save_path)
 
-        #########
-        # Testing
-        #########
+        ######### Testing
         print('MSE유사도: ', sess.run(cost, feed_dict={X: self.testX, Y: self.testY}))
         predict_model = sess.run(model, feed_dict={X: self.testX})
         predict_model = predict_model.round(3)
 
-        #########
-        # Writing
-        #########
+        ######### Writing
         filename = 'output/output.csv'
         import os
         os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -114,9 +106,7 @@ class ThreeLayerNet:
             wr.writerow(i)
         f.close()
 
-        #########
-        # Draw plot
-        #########
+        ######### Draw plot
         x = np.arange(0, total_epoch, 1)
         plt.xlabel('epoch')
         plt.ylabel('loss')
