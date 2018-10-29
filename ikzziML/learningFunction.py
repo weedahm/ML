@@ -7,8 +7,6 @@ from layer_network_tf import ThreeLayerNet
 import layer_network_tf_inference as lninf
 import json2data
 
-DATA_PREPRO_PATH = 'patients_2layerNN/dataPreprocessing.csv'
-
 def unsupervised_learning(data_path, dimension_reduction=0, clustering=0, n_component=3, n_cluster=3):
     ##### unsupervised learning
     patients_data = csv2data.get_data(data_path) # get array data from .csv file 
@@ -38,7 +36,7 @@ def unsupervised_learning(data_path, dimension_reduction=0, clustering=0, n_comp
     unspv_learn.print_plot() # draw plot
 
 
-def supervised_learning_training(trainX_path, trainY_path, testX_path, testY_path, model_path, datapps = 0):
+def supervised_learning_training(trainX_path, trainY_path, testX_path, testY_path, datapps = 0):
     trainX = csv2data.get_data(trainX_path)
     trainY = csv2data.get_data(trainY_path)
     testX = csv2data.get_data(testX_path)
@@ -47,7 +45,7 @@ def supervised_learning_training(trainX_path, trainY_path, testX_path, testY_pat
 
     dpp = DataPreprocessing()
 
-    f = open(DATA_PREPRO_PATH, 'w', newline='')
+    f = open('patients_2layerNN/dataPreprocessing.csv', 'w', newline='')
     wr = csv.writer(f)
     input_size = trainX.shape[1]
     output_size = trainY.shape[1]
@@ -76,12 +74,12 @@ def supervised_learning_training(trainX_path, trainY_path, testX_path, testY_pat
         wr.writerow('0')
     f.close()
 
-    spv_learn = ThreeLayerNet(trainX, trainY, testX, testY, size, model_path)
+    spv_learn = ThreeLayerNet(trainX, trainY, testX, testY, size)
     spv_learn.Net()
 
-def supervised_learning_inference(testX_path, model_path):
+def supervised_learning_inference(testX_path):
     ##### deeplearning - inference
-    f = open(DATA_PREPRO_PATH, 'r')
+    f = open('patients_2layerNN/dataPreprocessing.csv', 'r')
     rdr = csv.reader(f)
     data = []
     for line in rdr:
@@ -104,6 +102,6 @@ def supervised_learning_inference(testX_path, model_path):
     else:
         testX_pps = testX
 
-    predict_data = lninf.inferenceNet(testX_pps, size, model_path)
+    predict_data = lninf.inferenceNet(testX_pps, size)
     return predict_data
     

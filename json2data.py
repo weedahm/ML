@@ -62,5 +62,4 @@ def setData(json_data, num_features):
         else:
             data[0][i[0]] = json_data[i[1]][i[2]]
 
-    print(data)
     return data

@@ -8,7 +8,9 @@ import csv
 #mnist = input_data.read_data_sets("./mnist/data/", one_hot=True)
 
 class ThreeLayerNet:
-    def __init__(self, train_X, train_Y, test_X, test_Y, size):
+    def __init__(self, train_X, train_Y, test_X, test_Y, size, save_model_path):
+        self.model_path = save_model_path
+        self.output_path = 'output/output.csv'
         self.trainX = train_X
         self.trainY = train_Y
         self.testX = test_X
@@ -58,7 +60,7 @@ class ThreeLayerNet:
         sess.run(init)
 
         batch_size = 30
-        total_epoch = 300
+        total_epoch = 150
         total_batch = int(self.trainX.shape[0] / batch_size)
 
         train_loss = []
@@ -85,7 +87,7 @@ class ThreeLayerNet:
 
         ######### Save Model
         saver = tf.train.Saver()
-        save_path = saver.save(sess, "./patients_2layerNN/2layerNN.ckpt")
+        save_path = saver.save(sess, self.model_path)
 
         import os
         print(os.getcwd())
@@ -97,7 +99,7 @@ class ThreeLayerNet:
         predict_model = predict_model.round(3)
 
         ######### Writing
-        filename = 'output/output.csv'
+        filename = self.output_path
         import os
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         f = open(filename, 'w', newline='')
@@ -112,6 +114,6 @@ class ThreeLayerNet:
         plt.ylabel('loss')
         plt.plot(x ,train_loss, label="train_loss")
         plt.plot(x ,test_loss, label="test_loss")
-        plt.ylim(0, 200)
+        plt.ylim(0, 50)
         plt.legend()
         plt.show()
