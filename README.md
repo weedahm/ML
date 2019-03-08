@@ -9,3 +9,4 @@ scikit-learn
 tensorflow
 django
 djangorestframework
+pandas

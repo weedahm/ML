@@ -1,25 +1,35 @@
-import learningFunction as lf
-import common.calcFunctions as cf
-#from ikzziML import *
+from ikzziML import learningFunction
+from ikzziML.common import csv2data
+import numpy as np
 
+############## 1.   INPUT & SETTING DATA PATH    #################
+#unSupervised_data_path = 'data/csv/patients_Y_full.csv'
+X_path = 'data/csv/patients_X.csv'
+Y_path = 'data/csv/patients_Y_full.csv'
 
-#lf.unsupervised_learning()
+inference_testX_path = 'data/json/bodychart2.json'
 
-#unSupervised_data_path = 'data/csv/patients_Y6_full2.csv'
+############## 2.   SELECT TRAINING or INFERENCING    #################
+#learningFunction.unsupervised_learning(unSupervised_data_path, dimension_reduction=2, clustering=2, n_component=2, n_cluster=5)
+#learningFunction.supervised_learning_training(X_path, Y_path, datapps=1, isSet=True)
+#learningFunction.supervised_learning_training(X_path, Y_path, datapps=2, isSet=False, n_set=2)
 
-trainX_path = 'data/csv/patients_trainingX6.csv'
-trainY_path = 'data/csv/patients_trainingY6.csv'
-testX_path = 'data/csv/patients_testX6.csv'
-testY_path = 'data/csv/patients_testY6.csv'
+inference_textX = learningFunction.readBodychart(inference_testX_path)
 
-model_path = 'patients_2layerNN/2layerNN.ckpt'
-inference_testX_path = 'data/data.json'
+# set 수
+predict_n_set = learningFunction.supervised_learning_inference(inference_textX, isSet=True)
+print("Predict", predict_n_set, "Prescription SETs.")
+'''
+# 약재 중량(LIST)
+predict_data = learningFunction.supervised_learning_inference(inference_textX, isSet=False, n_set=predict_n_set)
 
-#lf.unsupervised_learning(unSupervised_data_path, dimension_reduction=2, clustering=2, n_component=2, n_cluster=5)
-#lf.supervised_learning_training(trainX_path, trainY_path, testX_path, testY_path, model_path, datapps=2)
+# 약재 중량(DIC)
+predict_data_dic = learningFunction.dataToDic(predict_data, n_set=predict_n_set)
 
-predict_data = lf.supervised_learning_inference(inference_testX_path, model_path)
-print(predict_data)
+# 그룹 점수(DIC)
+score = learningFunction.groupScore(predict_data_dic)
 
-predict_score = cf.setScore(predict_data)
-print(predict_score)
+# 최종 데이터(DIC)
+data = learningFunction.totalDic(score, predict_data_dic)
+print(data)
+'''
