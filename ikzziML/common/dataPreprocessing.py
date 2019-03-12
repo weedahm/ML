@@ -17,8 +17,10 @@ class DataPreprocessing:
 
     def standardization(self, data):
         data_out = (data - self.mean) / self.std
+        data_out = np.nan_to_num(data_out)
         return data_out
 
     def minMaxScaler(self, data):
         data_out = (data - self.min) / self.distance
+        data_out = np.nan_to_num(data_out)
         return data_out

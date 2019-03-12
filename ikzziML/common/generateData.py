@@ -84,7 +84,7 @@ def castToMLData(df_patients):
 
     return df_input, df_output, df_output_set
 
-def saveToCSV(patients_X_df, patients_Y_df, patients_Y_set_df):
-    patients_X_df.to_csv('created_csv/patients_X_new.csv', index=False, encoding='ms949')
-    patients_Y_df.to_csv('created_csv/patients_Y_new.csv', index=False, encoding='ms949')
-    patients_Y_set_df.to_csv('created_csv/patients_Y_set_new.csv', index=False, encoding='ms949')
+def saveToCSV(patients_X_df, patients_Y_df, patients_Y_set_df, save_path):
+    patients_X_df.to_csv(save_path+'X.csv', index=False, encoding='ms949')
+    patients_Y_df.to_csv(save_path+'Y.csv', index=False, encoding='ms949')
+    patients_Y_set_df.to_csv(save_path+'Y_set.csv', index=False, encoding='ms949')

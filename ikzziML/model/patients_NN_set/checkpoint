@@ -1,0 +1,2 @@
+model_checkpoint_path: "C:\\Users\\ikzzi\\Documents\\weedahm_ML\\ml\\ikzziML/model/patients_NN_set/2layerNN.ckpt"
+all_model_checkpoint_paths: "C:\\Users\\ikzzi\\Documents\\weedahm_ML\\ml\\ikzziML/model/patients_NN_set/2layerNN.ckpt"

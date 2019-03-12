@@ -39,7 +39,6 @@ class unsupervisedFuncs:
             model = TSNE(n_components=components)
 
         out = model.fit_transform(self.data)
-        print(out.shape)
         self.projected_data = out
 
     def let_kMC(self, clusters=10):

@@ -6,13 +6,12 @@ from .common import csv2data
 script_path = os.path.dirname(os.path.abspath(__file__))
 
 OUTPUT_PATH = 'output/inference_output_set.csv'
-MODEL_PATH = script_path + '/model/patients_2layerNN_set/2layerNN.ckpt'
 
-def inferenceNet(testX):
+def inferenceNet(testX, model_path):
     ######### Inference
     with tf.Session() as sess:
-        saver = tf.train.import_meta_graph(MODEL_PATH+'.meta') # Load Network
-        saver.restore(sess, MODEL_PATH) # Load Weight
+        saver = tf.train.import_meta_graph(model_path+'.meta') # Load Network
+        saver.restore(sess, model_path) # Load Weight
 
         graph = tf.get_default_graph()
         X = graph.get_tensor_by_name("X:0")

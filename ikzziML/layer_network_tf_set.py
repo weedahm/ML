@@ -7,21 +7,21 @@ from .common import csv2data
 script_path = os.path.dirname(os.path.abspath(__file__))
 
 OUTPUT_PATH = 'output/output_set.csv'
-MODEL_PATH = script_path + '/model/patients_2layerNN_set/2layerNN.ckpt'
 
 class TwoLayerNet:
-    def __init__(self, train_X, train_Y, test_X, test_Y, size):
+    def __init__(self, train_X, train_Y, test_X, test_Y, size, model_path):
         self.trainX = train_X
         self.trainY = train_Y
         self.testX = test_X
         self.testY = test_Y
         self.input_size = size[0]
         self.output_size = size[1]
+        self.model_path = model_path
 
     def Net(self):
         input_size = self.input_size
         output_size = self.output_size
-        hidden_size = 128
+        hidden_size = 64
 
         ######### Network Model
         X = tf.placeholder(tf.float32, [None, input_size], name="X")
@@ -47,7 +47,7 @@ class TwoLayerNet:
         sess.run(init)
 
         batch_size = 50
-        total_epoch = 85
+        total_epoch = 50
         total_batch = int(self.trainX.shape[0] / batch_size)
 
         train_loss = []
@@ -73,7 +73,7 @@ class TwoLayerNet:
 
         ######### Save Model
         saver = tf.train.Saver()
-        save_path = saver.save(sess, MODEL_PATH)
+        save_path = saver.save(sess, self.model_path)
         print("Model saved in file: ", save_path)
 
         ######### Testing

@@ -5,16 +5,21 @@ import csv
 from .common import csv2data
 from .common import jsonFunctions
 from .common import calcFunctions
+from .common import mappingData
 from .common.dataPreprocessing import DataPreprocessing
 
 script_path = os.path.dirname(os.path.abspath(__file__))
 
-NUMBER_OF_TRAINING_DATA = 600
-# 추후 데이터 쌓여서 one, three 네트워크 학습하면 변경. (현재는 모두 two로 사용)
-DATA_PREPRO_PATH_ONE = script_path + '/model/patients_2layerNN_two/dataPreprocessing.csv'
-DATA_PREPRO_PATH_TWO = script_path + '/model/patients_2layerNN_two/dataPreprocessing.csv'
-DATA_PREPRO_PATH_THREE = script_path + '/model/patients_2layerNN_two/dataPreprocessing.csv'
-DATA_PREPRO_PATH_SET = script_path + '/model/patients_2layerNN_set/dataPreprocessing.csv'
+NUMBER_OF_TRAINING_DATA = 500
+
+DATA_PREPRO_FILE = 'dataPreprocessing.csv'
+MODEL_FILE = '2layerNN.ckpt'
+
+MODEL_PATH = '/model/patients_NN'
+MODEL_PATH_ONE = script_path + MODEL_PATH + '_two/' # 추후 데이터 쌓여서 one, three 네트워크 학습하면 변경. (현재는 모두 two로 사용)
+MODEL_PATH_TWO = script_path + MODEL_PATH + '_two/'
+MODEL_PATH_THREE = script_path + MODEL_PATH + '_two/'
+MODEL_PATH_SET = script_path + MODEL_PATH + '_set/'
 
 def datasetSplit(data_set_X, data_set_Y, n_train=600):
     """Split dataset from [full] to [train/test] - Random(uniform) sampling
@@ -44,8 +49,9 @@ def datasetSplit(data_set_X, data_set_Y, n_train=600):
     testY : ndarray, shape (n_samples, n_feartures)
         output of test data, equal to trainX's n_samples and have same index order
     """
-    batch_mask = np.random.choice(data_set_X.shape[0], n_train, replace=False)
-    mask = np.zeros(824, dtype=bool)
+    n_samples = data_set_X.shape[0]
+    batch_mask = np.random.choice(n_samples, n_train, replace=False)
+    mask = np.zeros(n_samples, dtype=bool)
     mask[batch_mask] = True
 
     trainX, testX = data_set_X[mask], data_set_X[~mask]
@@ -57,12 +63,14 @@ def datasetSplit(data_set_X, data_set_Y, n_train=600):
 def unsupervised_learning(data_path, dimension_reduction=0, clustering=0, n_component=3, n_cluster=3):
     from .common.functions import unsupervisedFuncs
     
-    patients_data = csv2data.get_data(data_path) # get array data from .csv file
+    #patients_data = csv2data.get_data(data_path)
+    patients_data_df = mappingData.loadCSV(data_path) # get array data from .csv file
+    patients_data = patients_data_df.values.astype(np.float)
 
     dpp = DataPreprocessing()
     dpp.setMinDistance(patients_data)
     data = dpp.minMaxScaler(patients_data)
-    print(data)
+
     unspv_learn = unsupervisedFuncs(data)
 
     if(dimension_reduction == 1): # run Principal Component Analysis
@@ -77,7 +85,6 @@ def unsupervised_learning(data_path, dimension_reduction=0, clustering=0, n_comp
 
     #unspv_learn.show_components_info() # draw plot about information loss of PCA
 
-    print(unspv_learn.y_data)
     #print(unspv_learn.y_prob.round(3))
     #print(unspv_learn.y_prob.shape)
 
@@ -89,18 +96,24 @@ def supervised_learning_training(X_path, Y_path, datapps=0, isSet=False, n_set=2
     from .layer_network_tf_set import TwoLayerNet
 
     if isSet:
-        data_prepro_path = DATA_PREPRO_PATH_SET
+        data_prepro_path = MODEL_PATH_SET + DATA_PREPRO_FILE
     else:
         if n_set == 1:
-            data_prepro_path = DATA_PREPRO_PATH_ONE
+            data_prepro_path = MODEL_PATH_ONE + DATA_PREPRO_FILE
         elif n_set == 2:
-            data_prepro_path = DATA_PREPRO_PATH_TWO
+            data_prepro_path = MODEL_PATH_TWO + DATA_PREPRO_FILE
         elif n_set == 3:
-            data_prepro_path = DATA_PREPRO_PATH_THREE
+            data_prepro_path = MODEL_PATH_THREE + DATA_PREPRO_FILE
 
-    data_X = csv2data.get_data(X_path)
-    data_Y = csv2data.get_data(Y_path)
-    
+    data_X_df = mappingData.loadCSV(X_path)
+    data_Y_df = mappingData.loadCSV(Y_path)
+    data_X = data_X_df.values.astype(np.float)
+    data_Y = data_Y_df.values.astype(np.float)
+
+    if data_X.shape[0] != data_Y.shape[0] :
+        print('ERROR: Sample numbers of X and Y do not match.')
+
+    # 랜덤으로 train, test 셋 나누기
     trainX, trainY, testX, testY = datasetSplit(data_X, data_Y, n_train=NUMBER_OF_TRAINING_DATA)
     print(trainX.shape, trainY.shape, testX.shape, testY.shape)
     
@@ -134,9 +147,14 @@ def supervised_learning_training(X_path, Y_path, datapps=0, isSet=False, n_set=2
     csv2data.set_data(data_prepro_path, write_set)
 
     if isSet:
-        spv_learn = TwoLayerNet(trainX, trainY, testX, testY, size)
+        spv_learn = TwoLayerNet(trainX, trainY, testX, testY, size, MODEL_PATH_SET+MODEL_FILE)
     else:
-        spv_learn = ThreeLayerNet(trainX, trainY, testX, testY, size)
+        if n_set == 1:
+            spv_learn = ThreeLayerNet(trainX, trainY, testX, testY, size, MODEL_PATH_ONE+MODEL_FILE)
+        elif n_set == 2:
+            spv_learn = ThreeLayerNet(trainX, trainY, testX, testY, size, MODEL_PATH_TWO+MODEL_FILE)
+        elif n_set == 3:
+            spv_learn = ThreeLayerNet(trainX, trainY, testX, testY, size, MODEL_PATH_THREE+MODEL_FILE)
 
     spv_learn.Net()
 
@@ -146,14 +164,14 @@ def supervised_learning_inference(testX_json, isSet=False, n_set=2):
     from . import layer_network_tf_set_inference as lnsetinf
 
     if isSet:
-        data_prepro_path = DATA_PREPRO_PATH_SET
+        data_prepro_path = MODEL_PATH_SET + DATA_PREPRO_FILE
     else:
         if n_set == 1:
-            data_prepro_path = DATA_PREPRO_PATH_ONE
+            data_prepro_path = MODEL_PATH_ONE + DATA_PREPRO_FILE
         elif n_set == 2:
-            data_prepro_path = DATA_PREPRO_PATH_TWO
+            data_prepro_path = MODEL_PATH_TWO + DATA_PREPRO_FILE
         elif n_set == 3:
-            data_prepro_path = DATA_PREPRO_PATH_THREE
+            data_prepro_path = MODEL_PATH_THREE + DATA_PREPRO_FILE
 
     f = open(data_prepro_path, 'r')
     rdr = csv.reader(f)
@@ -166,11 +184,11 @@ def supervised_learning_inference(testX_json, isSet=False, n_set=2):
     dpp = DataPreprocessing()
 
     testX = jsonFunctions.castToMLData(testX_json)
-
+    
     if datapps == 1:
         dpp.mean = (np.array(data[1])).astype(np.float)
         dpp.std = (np.array(data[2])).astype(np.float)
-        testX_pps = dpp.standardization(testX) 
+        testX_pps = dpp.standardization(testX)
     elif datapps == 2:
         dpp.min = (np.array(data[1])).astype(np.float)
         dpp.distance = (np.array(data[2])).astype(np.float)
@@ -179,15 +197,15 @@ def supervised_learning_inference(testX_json, isSet=False, n_set=2):
         testX_pps = testX
 
     if isSet:
-        predict_data = lnsetinf.inferenceNet(testX_pps)
+        predict_data = lnsetinf.inferenceNet(testX_pps, MODEL_PATH_SET+MODEL_FILE)
     
     else:
         if n_set == 1:
-            predict_data = lninf.inferenceNet(testX_pps) # 처방 약재set 수에 따라 다른 network 사용
+            predict_data = lninf.inferenceNet(testX_pps, MODEL_PATH_ONE+MODEL_FILE) # 처방 약재set 수에 따라 다른 network 사용
         elif n_set == 2:
-            predict_data = lninf.inferenceNet(testX_pps)
+            predict_data = lninf.inferenceNet(testX_pps, MODEL_PATH_TWO+MODEL_FILE)
         elif n_set == 3:
-            predict_data = lninf.inferenceNet(testX_pps)
+            predict_data = lninf.inferenceNet(testX_pps, MODEL_PATH_THREE+MODEL_FILE)
     
     return predict_data
 

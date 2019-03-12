@@ -7,16 +7,16 @@ from .common import csv2data
 script_path = os.path.dirname(os.path.abspath(__file__))
 
 OUTPUT_PATH = 'output/output.csv'
-MODEL_PATH = script_path + '/model/patients_2layerNN_two/2layerNN.ckpt'
 
 class ThreeLayerNet:
-    def __init__(self, train_X, train_Y, test_X, test_Y, size):
+    def __init__(self, train_X, train_Y, test_X, test_Y, size, model_path):
         self.trainX = train_X
         self.trainY = train_Y
         self.testX = test_X
         self.testY = test_Y
         self.input_size = size[0]
         self.output_size = size[1]
+        self.model_path = model_path
 
     def Net(self):
         input_size = self.input_size
@@ -89,7 +89,7 @@ class ThreeLayerNet:
         
         ######### Save Model
         saver = tf.train.Saver()
-        save_path = saver.save(sess, MODEL_PATH)
+        save_path = saver.save(sess, self.model_path)
         print("Model saved in file:", save_path)
         
         ######### Testing

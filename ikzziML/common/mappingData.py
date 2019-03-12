@@ -27,9 +27,8 @@ def mappingToTrainingValues(dataframe_X):
 
     tmp_X = tmp_X.fillna(0) # 빈칸 = 0
     tmp_X = tmp_X*1 # True, False => 1, 0
-
-    dataframe_X = tmp_X
+    dataframe_X = tmp_X.copy()
     return dataframe_X
 
-def saveCSV(training_df_X):
-    training_df_X.to_csv('created_csv/patients_X_Training_new.csv', index=False, encoding='ms949')
+def saveCSV(training_df_X, save_path):
+    training_df_X.to_csv(save_path+'X_Training.csv', index=False, encoding='ms949')
