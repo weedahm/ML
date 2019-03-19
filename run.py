@@ -10,10 +10,10 @@ inference_testX_path = 'data/json/test.json'
 ############## 2.   SELECT TRAINING or INFERENCING    #################
 #learningFunction.unsupervised_learning(unSupervised_data_path, dimension_reduction=2, clustering=2, n_component=2, n_cluster=5)
 #learningFunction.supervised_learning_training(X_path, Y_path, datapps=1, isSet=True)
-#learningFunction.supervised_learning_training(X_path, Y_path, datapps=2, isSet=False, n_set=2)
+#learningFunction.supervised_learning_training(X_path, Y_path, datapps=1, isSet=False, n_set=2)
 
 inference_textX = learningFunction.readBodychart(inference_testX_path)
-
+'''
 # set 수
 predict_n_set = learningFunction.supervised_learning_inference(inference_textX, isSet=True)
 print("Predict", predict_n_set, "Prescription SETs.")
@@ -31,3 +31,4 @@ score = learningFunction.groupScore(predict_data_dic)
 data = learningFunction.totalDic(score, predict_data_dic)
 print(data)
 print(sum(data['SET']['SET1'].values()), sum(data['SET']['SET2'].values())) # 총 중량 확인
+'''

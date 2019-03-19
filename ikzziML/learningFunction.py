@@ -10,7 +10,7 @@ from .common.dataPreprocessing import DataPreprocessing
 
 script_path = os.path.dirname(os.path.abspath(__file__))
 
-NUMBER_OF_TRAINING_DATA = 500
+NUMBER_OF_TRAINING_DATA = 800
 
 DATA_PREPRO_FILE = 'dataPreprocessing.csv'
 MODEL_FILE = '2layerNN.ckpt'
