@@ -3,7 +3,7 @@ from ikzziML.common import mappingData
 from ikzziML.common import manipulateMissingVal
 
 DB_PATH = 'data/db/db.sqlite3'
-SAVE_PATH = 'data/created_csv/patients_'
+SAVE_PATH = 'data/csv/patients_'
 PATIENTS_X_CSV_PATH = SAVE_PATH + 'X.csv'
 PATIENTS_TRAINING_X_CSV_PATH = SAVE_PATH + 'X_Training.csv'
 PATIENTS_Y_CSV_PATH = SAVE_PATH + 'Y.csv'

@@ -14,12 +14,12 @@ def menu():
 m = menu()
 
 ############## 1.   INPUT & SETTING DATA PATH    #################
-unSupervised_data_path = 'data/csv/new/patients_Y.csv'
-X_path = 'data/csv/new/patients_X_Training.csv'
-Y_path_pre = 'data/csv/new/patients_Y.csv'
-Y_path_set = 'data/csv/new/patients_Y_set.csv'
+unSupervised_data_path = 'data/csv/patients_Y.csv'
+X_path = 'data/csv/patients_X_Training.csv'
+Y_path_pre = 'data/csv/patients_Y.csv'
+Y_path_set = 'data/csv/patients_Y_set.csv'
 
-inference_testX_path = 'data/json/test4.json'
+inference_testX_path = 'data/json/test.json'
 
 ############## 2.   TRAINING or INFERENCING    #################
 if(m == 1):
