@@ -61,8 +61,8 @@ class ThreeLayerNet:
         sess = tf.Session()
         sess.run(init)
 
-        batch_size = 30
-        total_epoch = 200
+        batch_size = 32
+        total_epoch = 70
         total_batch = int(self.trainX.shape[0] / batch_size)
 
         train_loss = []
@@ -85,7 +85,7 @@ class ThreeLayerNet:
             print('Epoch:', '%04d' % (epoch + 1), 'Avg. cost =', total_cost / total_batch, ', test cost = ', temp_test_loss)
             #    'Avg. cost =', '{:.3f}'.format(total_cost / total_batch), ', test cost = ', '{:.3f}'.format(temp_test_loss))
 
-        print('최적화 완료!')
+        print('Optimazation Complete!')
         
         ######### Save Model
         saver = tf.train.Saver()

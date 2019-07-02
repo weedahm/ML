@@ -9,7 +9,9 @@ class DataPreprocessing:
 
     def setMeanStd(self, data):
         self.mean = np.mean(data, axis=0)
-        self.std = np.std(data-self.mean, axis=0)
+        temp_std = np.std(data, axis=0)
+        temp_std[temp_std==0] = 1.0
+        self.std = temp_std
 
     def setMinDistance(self, data):
         self.min = np.min(data, axis=0)

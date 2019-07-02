@@ -46,8 +46,8 @@ class TwoLayerNet:
         sess = tf.Session()
         sess.run(init)
 
-        batch_size = 50
-        total_epoch = 50
+        batch_size = 32
+        total_epoch = 30
         total_batch = int(self.trainX.shape[0] / batch_size)
 
         train_loss = []

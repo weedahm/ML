@@ -10,18 +10,17 @@ from .common.dataPreprocessing import DataPreprocessing
 
 script_path = os.path.dirname(os.path.abspath(__file__))
 
-NUMBER_OF_TRAINING_DATA = 800
+NUMBER_OF_TRAINING_DATA = 2500
+MAX_N_SET = 3 # max 처방 세트 수
 
 DATA_PREPRO_FILE = 'dataPreprocessing.csv'
 MODEL_FILE = '2layerNN.ckpt'
 
 MODEL_PATH = '/model/patients_NN'
-MODEL_PATH_ONE = script_path + MODEL_PATH + '_two/' # 추후 데이터 쌓여서 one, three 네트워크 학습하면 변경. (현재는 모두 two로 사용)
 MODEL_PATH_TWO = script_path + MODEL_PATH + '_two/'
-MODEL_PATH_THREE = script_path + MODEL_PATH + '_two/'
 MODEL_PATH_SET = script_path + MODEL_PATH + '_set/'
 
-def datasetSplit(data_set_X, data_set_Y, n_train=600):
+def datasetSplit(data_set_X, data_set_Y, n_train):
     """Split dataset from [full] to [train/test] - Random(uniform) sampling
 
     Parameters
@@ -91,21 +90,21 @@ def unsupervised_learning(data_path, dimension_reduction=0, clustering=0, n_comp
     unspv_learn.print_plot() # draw plot
 
 ##### supervised learning
-def supervised_learning_training(X_path, Y_path, datapps=0, isSet=False, n_set=2):
+def supervised_learning_training(X_path, Y_path_pre, Y_path_set, datapps=0, isSet=False):
     from .layer_network_tf import ThreeLayerNet
     from .layer_network_tf_set import TwoLayerNet
 
+    data_X_df = mappingData.loadCSV(X_path)
+
     if isSet:
         data_prepro_path = MODEL_PATH_SET + DATA_PREPRO_FILE
+        Y_path = Y_path_set
     else:
-        if n_set == 1:
-            data_prepro_path = MODEL_PATH_ONE + DATA_PREPRO_FILE
-        elif n_set == 2:
-            data_prepro_path = MODEL_PATH_TWO + DATA_PREPRO_FILE
-        elif n_set == 3:
-            data_prepro_path = MODEL_PATH_THREE + DATA_PREPRO_FILE
+        data_prepro_path = MODEL_PATH_TWO + DATA_PREPRO_FILE
+        Y_path = Y_path_pre
+        data_Y_set_df = mappingData.loadCSV(Y_path_set)
+        data_X_df = data_X_df.join(data_Y_set_df)
 
-    data_X_df = mappingData.loadCSV(X_path)
     data_Y_df = mappingData.loadCSV(Y_path)
     data_X = data_X_df.values.astype(np.float)
     data_Y = data_Y_df.values.astype(np.float)
@@ -113,7 +112,7 @@ def supervised_learning_training(X_path, Y_path, datapps=0, isSet=False, n_set=2
     if data_X.shape[0] != data_Y.shape[0] :
         print('ERROR: Sample numbers of X and Y do not match.')
 
-    # 랜덤으로 train, test 셋 나누기
+    # 랜덤으로 train, test set 나누기
     trainX, trainY, testX, testY = datasetSplit(data_X, data_Y, n_train=NUMBER_OF_TRAINING_DATA)
     print(trainX.shape, trainY.shape, testX.shape, testY.shape)
     
@@ -149,29 +148,19 @@ def supervised_learning_training(X_path, Y_path, datapps=0, isSet=False, n_set=2
     if isSet:
         spv_learn = TwoLayerNet(trainX, trainY, testX, testY, size, MODEL_PATH_SET+MODEL_FILE)
     else:
-        if n_set == 1:
-            spv_learn = ThreeLayerNet(trainX, trainY, testX, testY, size, MODEL_PATH_ONE+MODEL_FILE)
-        elif n_set == 2:
-            spv_learn = ThreeLayerNet(trainX, trainY, testX, testY, size, MODEL_PATH_TWO+MODEL_FILE)
-        elif n_set == 3:
-            spv_learn = ThreeLayerNet(trainX, trainY, testX, testY, size, MODEL_PATH_THREE+MODEL_FILE)
+        spv_learn = ThreeLayerNet(trainX, trainY, testX, testY, size, MODEL_PATH_TWO+MODEL_FILE)
 
     spv_learn.Net()
 
 ##### deeplearning - inference
-def supervised_learning_inference(testX_json, isSet=False, n_set=2):
+def supervised_learning_inference(testX_json, isSet=False, infer_n_set=2):
     from . import layer_network_tf_inference as lninf
     from . import layer_network_tf_set_inference as lnsetinf
 
     if isSet:
         data_prepro_path = MODEL_PATH_SET + DATA_PREPRO_FILE
     else:
-        if n_set == 1:
-            data_prepro_path = MODEL_PATH_ONE + DATA_PREPRO_FILE
-        elif n_set == 2:
-            data_prepro_path = MODEL_PATH_TWO + DATA_PREPRO_FILE
-        elif n_set == 3:
-            data_prepro_path = MODEL_PATH_THREE + DATA_PREPRO_FILE
+        data_prepro_path = MODEL_PATH_TWO + DATA_PREPRO_FILE
 
     f = open(data_prepro_path, 'r')
     rdr = csv.reader(f)
@@ -184,6 +173,12 @@ def supervised_learning_inference(testX_json, isSet=False, n_set=2):
     dpp = DataPreprocessing()
 
     testX = jsonFunctions.castToMLData(testX_json)
+    
+    if(not isSet): # input 뒤에 추론한 처방 set 수 append
+        infer_set = np.zeros(MAX_N_SET)
+        infer_set[infer_n_set-1] = 1
+        testX_pre = np.append(testX[0], infer_set)
+        testX = np.reshape(testX_pre, (1, testX_pre.shape[0]))
     
     if datapps == 1:
         dpp.mean = (np.array(data[1])).astype(np.float)
@@ -198,14 +193,8 @@ def supervised_learning_inference(testX_json, isSet=False, n_set=2):
 
     if isSet:
         predict_data = lnsetinf.inferenceNet(testX_pps, MODEL_PATH_SET+MODEL_FILE)
-    
     else:
-        if n_set == 1:
-            predict_data = lninf.inferenceNet(testX_pps, MODEL_PATH_ONE+MODEL_FILE) # 처방 약재set 수에 따라 다른 network 사용
-        elif n_set == 2:
-            predict_data = lninf.inferenceNet(testX_pps, MODEL_PATH_TWO+MODEL_FILE)
-        elif n_set == 3:
-            predict_data = lninf.inferenceNet(testX_pps, MODEL_PATH_THREE+MODEL_FILE)
+        predict_data = lninf.inferenceNet(testX_pps, MODEL_PATH_TWO+MODEL_FILE)
     
     return predict_data
 

@@ -26,7 +26,8 @@ def inferenceNet(testX, model_path):
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     csv2data.set_data(OUTPUT_PATH, predict_model)
 
-    predict_model[predict_model < 1] = 0
+    #predict_model[predict_model < 1] = 0
     predict_data = (predict_model * 2).round() / 2
+    predict_data[predict_data < 1] = 0
 
     return predict_data
