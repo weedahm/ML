@@ -13,7 +13,6 @@ def loadCSV(patients_X_csv):
 
 def mappingToTrainingValues(dataframe_X):
     tmp_X = dataframe_X.copy()
-    #print(tmp_X['gender'])
 
     with open(DISEASE_ML_INPUT_MAP_PATH, encoding='utf-8') as data_file:
         val_dic = json.load(data_file)
